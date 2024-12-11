@@ -37,34 +37,37 @@ class AuthController extends Controller
     }
 
     public function login(Request $request)
-    {
-        $rules = [
-            'email' => 'required|email',
-            'password' => 'required|string'
-        ];
-        $validator = Validator::make($request->input(), $rules);
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Validation failed',
-                'errors' => $validator->errors()->all()
-            ], 400);
-        }
-
-        if (!Auth::attempt($request->only('email', 'password'))) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Invalid credentials'
-            ], 401);
-        }
-
-        $user = Auth::user();
+{
+    $rules = [
+        'email' => 'required|email',
+        'password' => 'required|string'
+    ];
+    $validator = Validator::make($request->input(), $rules);
+    if ($validator->fails()) {
         return response()->json([
-            'status' => true,
-            'message' => 'User logged in successfully',
-            'token' => $user->createToken('API TOKEN')->plainTextToken
-        ], 200);
+            'status' => false,
+            'message' => 'Validation failed',
+            'errors' => $validator->errors()->all()
+        ], 400);
     }
+
+    if (!Auth::attempt($request->only('email', 'password'))) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Invalid credentials'
+        ], 401);
+    }
+
+    $user = Auth::user(); // Obtener el usuario autenticado
+
+    return response()->json([
+        'status' => true,
+        'message' => 'User logged in successfully',
+        'user' => $user, // Incluye los datos del usuario
+        'token' => $user->createToken('API TOKEN')->plainTextToken
+    ], 200);
+}
+
     public function logout(Request $request)
     {
         // Elimina el token de acceso actual
